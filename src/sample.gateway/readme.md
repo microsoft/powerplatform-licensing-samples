@@ -41,7 +41,7 @@ To run these commands you have a few options:
 
 Running these commands will launch an authentication flow to acquire a user token for the specified tenant.  
 Ensure you have the necessary permissions to execute these commands.  
-The command uses a launch profile named "ToolsDevelopment" which is pre-configured for production scenarios.
+The command uses a launch profile named "PlatformProd" which is pre-configured for production scenarios.
 
 The examples below use a sample tenant id and environment id.  You should change these to your tenant id and environment id.  To find these details you can use PPAC (Power Platform Admin Center) or other tools.
 
@@ -50,13 +50,13 @@ Sample commands executed in the terminal `developer console`:
 ```terminal
 
 #REM Get the Billing Policies
-> dotnet run --launch-profile "ToolsDevelopment" "CommandBillingPoliciesGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --project src/sample.gateway
+> dotnet run --launch-profile "PlatformProd" "CommandBillingPoliciesGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --project src/sample.gateway
 
 #REM Get the environments associatd with the Billing Policy
-> dotnet run --launch-profile "ToolsDevelopment" "CommandBillingPolicyEnvironmentGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --billingPolicyId 1c590f8e-92ba-4f4b-84b4-2d048daebe34 --project src/sample.gateway
+> dotnet run --launch-profile "PlatformProd" "CommandBillingPolicyEnvironmentGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --billingPolicyId 1c590f8e-92ba-4f4b-84b4-2d048daebe34 --project src/sample.gateway
 
 REM Get the Environment Billing Policy details
-> dotnet run --launch-profile "ToolsDevelopment" "CommandEnvironmentBillingGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --project src/sample.gateway
+> dotnet run --launch-profile "PlatformProd" "CommandEnvironmentBillingGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --project src/sample.gateway
 
 ```
 
