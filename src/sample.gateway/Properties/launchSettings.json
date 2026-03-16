@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ToolsDevelopment": {
+    "PlatformProd": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
@@ -9,7 +9,7 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "ToolsDevelopmentPreprod": {
+    "PlatformPreprod": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
@@ -63,8 +63,8 @@
       "commandLineArgs": "CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --whatif true",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
+        "CS_ENVIRONMENT": "prod",
+        "CS_CATEGORY": "Prod",
         "CS_TYPE": "CustomerManagement"
       }
     },
