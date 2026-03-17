@@ -200,7 +200,7 @@ public abstract class BaseCommand<T> where T : ICommandOptions
 
         for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            HttpRequestMessage request = new(HttpMethod.Get, url);
+            HttpRequestMessage request = new(httpMethod, url);
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
             request.Headers.Add("x-ms-client-tenant-id", tenantId);
             request.Headers.Add("x-ms-correlation-id", correlationId.ToString());
