@@ -10,6 +10,8 @@ This command enumerates **all environments** in your tenant and enables or disab
 |---|---|---|---|
 | `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
 | `--action` | `-a` | No | The action to perform. Valid values: `DisableDrawFromTenantPool` (default), `EnableDrawFromTenantPool`. |
+| `--pagingBy` | `-p` | No | Number of environments to retrieve per page when enumerating the tenant. Defaults to `50`. |
+| `--skipExisting` | `-s` | No | When present, skips any environment whose allocation already has a `Quantity > 0` **and** the target enforcement rule already exists. Environments missing the enforcement rule are still processed even when this flag is set. |
 | `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints all environments that would be modified without applying changes. |
 
 ## Prerequisites
@@ -71,9 +73,11 @@ dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "Command
 ## What to Expect
 
 1. The command authenticates you interactively via Microsoft Entra ID (you will be prompted for both gateway and BAP tokens).
-2. It enumerates all environments in the tenant by paging through the BAP environment list.
+2. It enumerates all environments in the tenant by paging through the BAP environment list (`--pagingBy` controls the page size).
 3. For each environment, it retrieves the current allocation and enforcement rules.
-4. It determines whether the `TenantPool` enforcement rule needs to be enabled or disabled based on the `--action` parameter.
-5. Environments that already match the desired state are skipped.
-6. With `--whatif`: For each environment requiring changes, the command prints the PUT request URL and body.
-7. Without `--whatif`: The command sends PUT requests to update each environment and prints the responses.
+4. If no allocation document exists for the environment, a new one is created with default `TenantPool` enforcement rules for both `MCSMessages` and `MCSSessions`.
+5. It determines whether the `TenantPool` enforcement rule needs to be added, enabled, or disabled based on the `--action` parameter.
+6. When `--skipExisting` is set, an environment is skipped only when its allocation already has `Quantity > 0` **and** the enforcement rule is already present. If the enforcement rule is missing, it is still created regardless of this flag.
+7. Environments that already match the desired state are skipped.
+8. With `--whatif`: For each environment requiring changes, the command prints the PUT request URL and body.
+9. Without `--whatif`: The command sends PUT requests to update each environment and prints the responses.

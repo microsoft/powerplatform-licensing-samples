@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using sample.gateway.Discovery;
+using sample.gateway.Models;
 using sample.gateway.Tokens;
 
 public abstract class BaseCommand<T> where T : ICommandOptions
@@ -193,49 +195,73 @@ public abstract class BaseCommand<T> where T : ICommandOptions
     {
         correlationId ??= Guid.NewGuid();
 
-        HttpRequestMessage request = new(HttpMethod.Get, url);
-        request.Headers.Add("Authorization", $"Bearer {accessToken}");
-        request.Headers.Add("x-ms-client-tenant-id", tenantId);
-        request.Headers.Add("x-ms-correlation-id", correlationId.ToString());
+        const int maxRetries = 3;
+        const int throttleBackoffSeconds = 60;
 
-        try
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            if (!string.IsNullOrWhiteSpace(requestBody))
+            HttpRequestMessage request = new(HttpMethod.Get, url);
+            request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            request.Headers.Add("x-ms-client-tenant-id", tenantId);
+            request.Headers.Add("x-ms-correlation-id", correlationId.ToString());
+
+            try
             {
-                request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                if (!string.IsNullOrWhiteSpace(requestBody))
+                {
+                    request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                }
+
+                HttpResponseMessage response = _msalFactory.GetHttpClient().SendAsync(request, cancellationToken).Result;
+
+                TraceLogger.LogInformation("Request Status Code = {StatusCode}:  CorrelationId = {CorrelationId}", response.StatusCode, correlationId);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorResponse = response.Content.ReadAsStringAsync(cancellationToken).Result;
+                    TraceLogger.LogInformation("Request: {url}", url);
+                    TraceLogger.LogInformation("Response: {ErrorResponse}", errorResponse);
+
+                    if (IsBurstThrottled(errorResponse) && attempt < maxRetries)
+                    {
+                        TraceLogger.LogWarning(
+                            "BAP request throttled (BurstRequestsThrottled). Backing off for {Seconds}s before retry {Attempt}/{MaxRetries}.",
+                            throttleBackoffSeconds, attempt, maxRetries);
+                        Task.Delay(TimeSpan.FromSeconds(throttleBackoffSeconds), cancellationToken).Wait(cancellationToken);
+                        continue;
+                    }
+                }
+                else
+                {
+                    return response.Content.ReadAsStringAsync(cancellationToken).Result;
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                TraceLogger.LogError(httpEx, "Exception => Request failed: {Message}", httpEx.Message);
+            }
+            catch (Exception ex)
+            {
+                TraceLogger.LogError(ex, "Exception => Request failed: {Message}", ex.Message);
             }
 
-            HttpResponseMessage response = _msalFactory.GetHttpClient().SendAsync(request, cancellationToken).Result;
-
-            TraceLogger.LogInformation("Request Status Code = {StatusCode}:  CorrelationId = {CorrelationId}", response.StatusCode, correlationId);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                // We can add retry logic, transient fault handling, or logging here
-                string errorResponse = response.Content.ReadAsStringAsync(cancellationToken).Result;
-                TraceLogger.LogInformation("Error Request: {url}", url);
-                TraceLogger.LogInformation("Error Response: {ErrorResponse}", errorResponse);
-            }
-            else
-            {
-                string responseBody = response.Content.ReadAsStringAsync(cancellationToken).Result;
-                return responseBody;
-            }
-
-        }
-        catch (HttpRequestException httpEx)
-        {
-            TraceLogger.LogError(httpEx, "Request failed: {Message}", httpEx.Message);
-        }
-        catch (Exception ex)
-        {
-            TraceLogger.LogError(ex, "Request failed: {Message}", ex.Message);
-        }
-        finally
-        {
+            break;
         }
 
         return string.Empty;
+    }
+
+    private static bool IsBurstThrottled(string errorResponse)
+    {
+        try
+        {
+            var throttle = JsonConvert.DeserializeObject<BapThrottleResponse>(errorResponse);
+            return throttle?.Error?.Code == "BurstRequestsThrottled";
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>

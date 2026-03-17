@@ -28,9 +28,8 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
             Guid correlationId = Guid.NewGuid(); // For tracing purposes, associate all calls in this run with this correlation ID
 
             // BAP Environment Discovery
-            int pagingBy = 2; // Number of items to fetch per page
             Uri bapDomain = new Uri($"https://{_neptuneDiscovery.GetBapEndpoint()}"); // used to validate Nextlink contains relative base url
-            Uri bapEnvironmentsUrl = new Uri(bapDomain, $"/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2021-04-01&$top={pagingBy}&$select=name,properties.displayName,properties.createdTime,properties.tenantId,location");
+            Uri bapEnvironmentsUrl = new Uri(bapDomain, $"/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments?api-version=2021-04-01&$top={Opts.PagingBy}&$select=name,properties.displayName,properties.createdTime,properties.tenantId,location");
 
             // Neptune PPAPI GW Tenant routing URL
             Uri gatewayTenantUri = new Uri($"https://{_neptuneDiscovery.GetGatewayEndpoint(Opts.TenantId)}");
@@ -91,12 +90,33 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
 
             Uri allocationsUrl = new Uri(gatewayTenantUri, $"/licensing/allocations?$filter=environmentId eq '{environment.Name}' and EntitlementId in (MCSMessages,MCSSessions)&api-version=1");
             string allocationsResponse = OnSendAsync(allocationsUrl.ToString(), Opts.TenantId, gatewayAccessToken, HttpMethod.Get, correlationId: correlationId, cancellationToken: CancellationToken.None);
-            if (!string.IsNullOrWhiteSpace(allocationsResponse))
+
+            bool HasChanges = false;
+
+            AllocationPutRequestModel allocationPutRequestModel = new AllocationPutRequestModel
             {
+                Scope = new ScopeModel
+                {
+                    TenantId = Opts.TenantId,
+                    EnvironmentId = environment.Name,
+                },
+                AllocatedEntitlements = new List<EntitlementAllocationModel>(),
+            };
+
+            if (string.IsNullOrWhiteSpace(allocationsResponse))
+            {
+                HasChanges = true;
+                TraceLogger.LogInformation("No allocations found for Environment: {EnvironmentName}", environment.Name);
+                TraceLogger.LogInformation("Assuming no enforcement rules are set for this environment and defaulting to Tenant Pool enforcement for MCSMessages and MCSSessions entitlements.");
+            }
+            else
+            {
+                TraceLogger.LogInformation("Allocations found for Environment: {EnvironmentName}", environment.Name);
+
                 // Can Put
                 AllocationResponseModel allocationResponse = JsonConvert.DeserializeObject<AllocationResponseModel>(allocationsResponse);
 
-                AllocationPutRequestModel allocationPutRequestModel = new AllocationPutRequestModel
+                allocationPutRequestModel = new AllocationPutRequestModel
                 {
                     Scope = new ScopeModel
                     {
@@ -105,50 +125,49 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
                     },
                     AllocatedEntitlements = allocationResponse.AllocatedEntitlements ?? new List<EntitlementAllocationModel>(),
                 };
+            }
 
-                bool HasChanges = false;
+            // Always invoke both — short-circuit || would skip the call if HasChanges is already true
+            bool mcsMessagesChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSMessages"), EnforcementRuleTypes.TenantPool);
+            bool mcsSessionsChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSSessions"), EnforcementRuleTypes.TenantPool);
+            HasChanges = HasChanges || mcsMessagesChanged || mcsSessionsChanged;
 
-                // If no enforcement rules were found, defaults to Tenant Pool, lets create the entitlement
-                HasChanges = HasChanges || EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSMessages"), EnforcementRuleTypes.TenantPool);
-                HasChanges = HasChanges || EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSSessions"), EnforcementRuleTypes.TenantPool);
-
-                string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, new JsonSerializerSettings
+            string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = new List<JsonConverter>
                 {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented,
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Converters = new List<JsonConverter>
-                    {
-                        new StringEnumConverter(),
-                        new ModelTypeConverter<EntitlementId>(),
-                        new ModelTypeConverter<EnvironmentGroupId>(),
-                        new ModelTypeConverter<EnvironmentId>(),
-                        new ModelTypeConverter<TenantId>(),
-                        new ModelTypeConverter<UserId>(),
-                    },
-                });
+                    new StringEnumConverter(),
+                    new ModelTypeConverter<EntitlementId>(),
+                    new ModelTypeConverter<EnvironmentGroupId>(),
+                    new ModelTypeConverter<EnvironmentId>(),
+                    new ModelTypeConverter<TenantId>(),
+                    new ModelTypeConverter<UserId>(),
+                },
+            });
 
-                if (!HasChanges)
-                {
-                    TraceLogger.LogInformation("No Enforcement Rules to unset for Environment: {EnvironmentName}", environment.Name);
-                    continue; // No-Op
-                }
+            if (!HasChanges)
+            {
+                TraceLogger.LogInformation("No Enforcement Rules to unset for Environment: {EnvironmentName}", environment.Name);
+                continue; // No-Op
+            }
 
-                Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/allocations?api-version=1");
+            Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/allocations?api-version=1");
 
-                if (Opts.WhatIf.HasValue) // typically null, if this --whatif is present in the pipeline skip it
+            if (Opts.WhatIf.HasValue) // typically null, if this --whatif is present in the pipeline skip it
+            {
+                /// Present the change could be made
+                TraceLogger.LogInformation("WhatIf: Would PUT to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);
+            }
+            else
+            {
+                string putResponse = OnSendAsync(allocationsPutUrl.ToString(), Opts.TenantId, gatewayAccessToken, httpMethod: HttpMethod.Put, requestBody: assertedChange, correlationId: correlationId, cancellationToken: CancellationToken.None);
+                if (!string.IsNullOrWhiteSpace(putResponse))
                 {
-                    /// Present the change could be made
-                    TraceLogger.LogInformation("WhatIf: Would PUT to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);
-                }
-                else
-                {
-                    string putResponse = OnSendAsync(allocationsPutUrl.ToString(), Opts.TenantId, gatewayAccessToken, httpMethod: HttpMethod.Put, requestBody: assertedChange, correlationId: correlationId, cancellationToken: CancellationToken.None);
-                    if (!string.IsNullOrWhiteSpace(putResponse))
-                    {
-                        TraceLogger.LogInformation("Successfully PUT allocations for Environment: {EnvironmentName}", environment.Name);
-                        TraceLogger.LogInformation("Response: {PutResponse}", putResponse);
-                    }
+                    TraceLogger.LogInformation("Successfully PUT allocations for Environment: {EnvironmentName}", environment.Name);
+                    TraceLogger.LogInformation("Response: {PutResponse}", putResponse);
                 }
             }
         }
@@ -192,6 +211,13 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
         }
         else
         {
+            if (Opts.SkipExisting
+                && existingEntitlement.EnforcementRules != null && existingEntitlement.EnforcementRules.Any(er => er.Type == enforcementRuleType))
+            {
+                TraceLogger.LogInformation("Skipping Environment: {EnvironmentId} for Entitlement: {EntitlementId} as it already has Enforcement Rule: {EnforcementRuleType}", allocationPutRequestModel.Scope.EnvironmentId, entitlementId, enforcementRuleType);
+                return false; // Skip this entitlement as it already has the enforcement rule
+            }
+
             // Update the entitlement with default rules
             if (existingEntitlement.EnforcementRules == null || existingEntitlement.EnforcementRules.Count == 0)
             {
