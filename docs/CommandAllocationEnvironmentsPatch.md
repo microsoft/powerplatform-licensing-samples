@@ -11,7 +11,7 @@ This command enumerates **all environments** in your tenant and enables or disab
 | `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
 | `--action` | `-a` | No | The action to perform. Valid values: `DisableDrawFromTenantPool` (default), `EnableDrawFromTenantPool`. |
 | `--pagingBy` | `-p` | No | Number of environments to retrieve per page when enumerating the tenant. Defaults to `50`. |
-| `--skipExisting` | `-s` | No | When present, skips any environment whose allocation already has a `Quantity > 0` **and** the target enforcement rule already exists. Environments missing the enforcement rule are still processed even when this flag is set. |
+| `--skipExisting` | `-s` | No | When present, skips any environment whose allocation enforcement rule already exists. Environments missing the enforcement rule are still processed even when this flag is set. |
 | `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints all environments that would be modified without applying changes. |
 
 ## Prerequisites
