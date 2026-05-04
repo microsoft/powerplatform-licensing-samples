@@ -6,11 +6,11 @@ API Reference: [Get Environment Billing Policy](https://learn.microsoft.com/en-u
 
 ## Parameters
 
-| Parameter | Short | Required | Description |
-|---|---|---|---|
-| `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
-| `--environmentId` | | Yes | The Environment Id for which the billing policy will be retrieved. |
-| `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints the operation details without executing the API call. |
+| Parameter | Required | Description |
+|---|---|---|
+| `--tenantId` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
+| `--environmentId` | Yes | The Environment Id for which the billing policy will be retrieved. |
+| `--whatif` | No | Enables a "what would happen" preview. When present, the command prints the operation details without executing the API call. |
 
 ## Prerequisites
 
@@ -44,13 +44,13 @@ dotnet build src/sample.gateway/sample.gateway.csproj
 Replace the placeholder values with your actual Tenant Id and Environment Id.
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandEnvironmentBillingGet" --tenantId <your-tenant-id> --environmentId <your-environment-id>
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandEnvironmentBillingGet --tenantId <your-tenant-id> --environmentId <your-environment-id>
 ```
 
 **Example:**
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandEnvironmentBillingGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02
 ```
 
 The command will prompt you to authenticate with your tenant admin credentials via an interactive browser login. Once authenticated, it will print the billing policy details for the specified environment.
@@ -60,7 +60,7 @@ The command will prompt you to authenticate with your tenant admin credentials v
 To see the operation details without executing the API call:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandEnvironmentBillingGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --whatif
 ```
 
 ## What to Expect

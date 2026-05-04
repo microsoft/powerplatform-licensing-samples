@@ -6,10 +6,10 @@ API Reference: [List Billing Policies](https://learn.microsoft.com/en-us/rest/ap
 
 ## Parameters
 
-| Parameter | Short | Required | Description |
-|---|---|---|---|
-| `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
-| `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints the operation details without executing the API call. |
+| Parameter | Required | Description |
+|---|---|---|
+| `--tenantId` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
+| `--whatif` | No | Enables a "what would happen" preview. When present, the command prints the operation details without executing the API call. |
 
 ## Prerequisites
 
@@ -42,13 +42,13 @@ dotnet build src/sample.gateway/sample.gateway.csproj
 Replace the placeholder value with your actual Tenant Id.
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandBillingPoliciesGet" --tenantId <your-tenant-id>
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandBillingPoliciesGet --tenantId <your-tenant-id>
 ```
 
 **Example:**
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandBillingPoliciesGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandBillingPoliciesGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0
 ```
 
 The command will prompt you to authenticate with your tenant admin credentials via an interactive browser login. Once authenticated, it will print all billing policies for your tenant.
@@ -58,7 +58,7 @@ The command will prompt you to authenticate with your tenant admin credentials v
 To see the operation details without executing the API call:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandBillingPoliciesGet" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandBillingPoliciesGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --whatif
 ```
 
 ## What to Expect

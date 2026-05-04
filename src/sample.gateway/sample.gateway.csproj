@@ -35,10 +35,10 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" />
 		<PackageReference Include="Microsoft.Identity.Client" />
-		<PackageReference Include="Microsoft.AspNetCore.Hosting" />
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" />
 		<PackageReference Include="Microsoft.PowerPlatform.Management" />
 		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="System.CommandLine" />
 	</ItemGroup>
 
 	<ItemGroup>
