@@ -6,22 +6,23 @@
     <Nullable>disable</Nullable>
 		<LangVersion>13.0</LangVersion>
 		<EnablePackageReferenceOverride>true</EnablePackageReferenceOverride>
+		<Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity"  />
+		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection"  />
-		<PackageReference Include="Microsoft.Extensions.Hosting"  />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"  />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-		<PackageReference Include="Microsoft.Extensions.Logging.EventSource"  />
+		<PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug"  />
-		<PackageReference Include="Microsoft.Identity.Client"  />
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies"  />
-		<PackageReference Include="Microsoft.PowerPlatform.Management"  />
-		<PackageReference Include="Newtonsoft.Json"  />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+		<PackageReference Include="Microsoft.Identity.Client" />
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" />
+		<PackageReference Include="Microsoft.PowerPlatform.Management" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 
 	<ItemGroup>

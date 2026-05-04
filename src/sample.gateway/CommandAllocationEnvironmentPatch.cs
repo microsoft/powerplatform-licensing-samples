@@ -138,7 +138,7 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
         bool responseOk = false;
         Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/environments/{environmentId}/allocations?api-version=2022-03-01-preview");
 
-        if (Opts.WhatIf.HasValue) // typically null, if this --whatif is present in the pipeline skip it
+        if (Opts.WhatIf)
         {
             /// Present the change could be made
             TraceLogger.LogInformation("WhatIf: Would PUT to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);
