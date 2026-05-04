@@ -282,12 +282,8 @@ public abstract class BaseCommand<T> where T : ICommandOptions
         string tokenResource,
         CancellationToken cancellationToken = default)
     {
-        string[] scopes = new[] { resource.GetScopeEnsureResourceTrailingSlash() };
+        string[] scopes = [resource.GetScopeEnsureResourceTrailingSlash()];
         string resourceScoped = $"{tokenPrefix}-{tokenResource}".ToLowerInvariant();
-
-        // The consent URL is not used in this method, but it can be useful for debugging or manual consent
-        // We need the user to provide consent once
-        TraceLogger.LogInformation($"Consent URL: {_authority}/oauth2/v2.0/authorize?client_id={clientId}&response_type=code&scope=user.read");
 
         TokenInfo token = TokenStorage.LoadToken(resourceScoped);
 
