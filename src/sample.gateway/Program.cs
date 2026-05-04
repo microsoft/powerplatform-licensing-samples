@@ -1,7 +1,6 @@
 ﻿namespace sample.gateway;
 
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

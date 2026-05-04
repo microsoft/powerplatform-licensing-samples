@@ -20,7 +20,7 @@
     },
     "CommandEnvironmentBillingGet": {
       "commandName": "Project",
-      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId f74e8233-dcad-e509-a2ed-e257505095b3",
+      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "test",
@@ -30,7 +30,7 @@
     },
     "CommandEnvironmentBillingGetProd": {
       "commandName": "Project",
-      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02",
+      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "prod",
@@ -80,7 +80,7 @@
     },
     "CommandAllocationEnvironmentGet": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId f74e8233-dcad-e509-a2ed-e257505095b3",
+      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "test",
@@ -90,7 +90,7 @@
     },
     "CommandAllocationEnvironmentGetGccM": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId a8037933-4d29-4ef8-8754-e67b2edd480b --environmentId 2fa11e00-50c1-ec50-bc11-a8145aaff80c",
+      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",

@@ -8,13 +8,13 @@ API Reference: [Patch Currency Allocation by Environment](https://learn.microsof
 
 ## Parameters
 
-| Parameter | Short | Required | Description |
-|---|---|---|---|
-| `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
-| `--environmentId` | | Yes | The Environment Id for which the allocation will be modified. |
-| `--currencyType` | `-c` | Yes | The currency type to modify. Valid values: `AI`, `PowerAutomatePerProcess`, `ProcessMiningDataStorage`. |
-| `--allocated` | `-a` | No | The numeric value for the allocation. Defaults to `0`. |
-| `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints the changes that would be made without applying them. |
+| Parameter | Required | Description |
+|---|---|---|
+| `--tenantId` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
+| `--environmentId` | Yes | The Environment Id for which the allocation will be modified. |
+| `--currencyType` | Yes | The currency type to modify. Valid values: `AI`, `PowerAutomatePerProcess`, `ProcessMiningDataStorage`. |
+| `--allocated` | No | The numeric value for the allocation. Defaults to `0`. |
+| `--whatif` | No | Enables a "what would happen" preview. When present, the command prints the changes that would be made without applying them. |
 
 ## Prerequisites
 
@@ -48,13 +48,13 @@ dotnet build src/sample.gateway/sample.gateway.csproj
 Always start with `--whatif` to see what the command would do before applying changes:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentPatch" --tenantId <your-tenant-id> --environmentId <your-environment-id> -c PowerAutomatePerProcess -a 10 --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentPatch --tenantId <your-tenant-id> --environmentId <your-environment-id> --currencyType PowerAutomatePerProcess --allocated 10 --whatif
 ```
 
 **Example:**
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentPatch" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 -c PowerAutomatePerProcess -a 10 --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --currencyType PowerAutomatePerProcess --allocated 10 --whatif
 ```
 
 The command will prompt you to authenticate with your tenant admin credentials, then print the changes that **would** be made without actually applying them.
@@ -64,7 +64,7 @@ The command will prompt you to authenticate with your tenant admin credentials, 
 Once you have confirmed the preview, remove `--whatif` to apply:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentPatch" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 -c PowerAutomatePerProcess -a 10
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId d54a33bc-880a-e348-b341-3a0581585c02 --currencyType PowerAutomatePerProcess --allocated 10
 ```
 
 ## What to Expect

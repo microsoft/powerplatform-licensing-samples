@@ -6,13 +6,13 @@ This command enumerates **all environments** in your tenant and enables or disab
 
 ## Parameters
 
-| Parameter | Short | Required | Description |
-|---|---|---|---|
-| `--tenantId` | `-t` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
-| `--action` | `-a` | No | The action to perform. Valid values: `DisableDrawFromTenantPool` (default), `EnableDrawFromTenantPool`. |
-| `--pagingBy` | `-p` | No | Number of environments to retrieve per page when enumerating the tenant. Defaults to `50`. |
-| `--skipExisting` | `-s` | No | When present, skips any environment whose allocation enforcement rule already exists. Environments missing the enforcement rule are still processed even when this flag is set. |
-| `--whatif` | `-w` | No | Enables a "what would happen" preview. When present, the command prints all environments that would be modified without applying changes. |
+| Parameter | Required | Description |
+|---|---|---|
+| `--tenantId` | Yes | The Tenant Id used for authentication. This determines which tenant the operation targets. |
+| `--action` | No | The action to perform. Valid values: `DisableDrawFromTenantPool` (default), `EnableDrawFromTenantPool`. |
+| `--pagingBy` | No | Number of environments to retrieve per page when enumerating the tenant. Defaults to `50`. |
+| `--skipExisting` | No | When present, skips any environment whose allocation enforcement rule already exists. Environments missing the enforcement rule are still processed even when this flag is set. |
+| `--whatif` | No | Enables a "what would happen" preview. When present, the command prints all environments that would be modified without applying changes. |
 
 ## Prerequisites
 
@@ -45,13 +45,13 @@ dotnet build src/sample.gateway/sample.gateway.csproj
 Always start with `--whatif` to see what environments would be affected:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentsPatch" --tenantId <your-tenant-id> -a DisableDrawFromTenantPool --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentsPatch --tenantId <your-tenant-id> --action DisableDrawFromTenantPool --whatif
 ```
 
 **Example — Disable draw from Tenant Pool (preview):**
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentsPatch" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 -a DisableDrawFromTenantPool --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --action DisableDrawFromTenantPool --whatif
 ```
 
 The command will prompt you to authenticate with your tenant admin credentials, then print all environments that would be modified along with the request body for each change.
@@ -59,7 +59,7 @@ The command will prompt you to authenticate with your tenant admin credentials, 
 **Example — Enable draw from Tenant Pool (preview):**
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentsPatch" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 -a EnableDrawFromTenantPool --whatif
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --action EnableDrawFromTenantPool --whatif
 ```
 
 ### 5. Apply the changes
@@ -67,7 +67,7 @@ dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "Command
 Once you have confirmed the preview output, remove `--whatif` to apply:
 
 ```bash
-dotnet run --launch-profile "PlatformProd" --project src/sample.gateway "CommandAllocationEnvironmentsPatch" --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 -a DisableDrawFromTenantPool
+dotnet run --launch-profile "PlatformProd" --project src/sample.gateway CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --action DisableDrawFromTenantPool
 ```
 
 ## What to Expect
