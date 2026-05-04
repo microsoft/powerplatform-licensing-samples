@@ -87,9 +87,9 @@ public struct EntitlementId : IEquatable<EntitlementId>, IComparable<Entitlement
         };
     }
 
-    public int CompareTo(EntitlementId other)
+    public readonly int CompareTo(EntitlementId other)
     {
-        if (other == null || string.IsNullOrWhiteSpace(other))
+        if (string.IsNullOrWhiteSpace(other))
         {
             return 1;
         }

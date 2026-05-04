@@ -1,43 +1,15 @@
-﻿namespace sample.gateway;
+namespace sample.gateway;
 
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
+using System.CommandLine;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 class Program
 {
-    private static ICommandOptions commandOptions { get; set; }
     protected Program() { }
 
-    // Non-web application
     public static int Main(string[] args)
     {
-        int result = 0;
         Console.WriteLine($"SampleGateway {DateTime.UtcNow:r}");
-
-        // read through Verbs in all Options files
-        Type[] commandVerbs = StartupExtensions.LoadVerbs();
-        var argsAsList = new List<string>(args);
-        ParserResult<object> parsedArgs = Parser.Default.ParseArguments(argsAsList, commandVerbs);
-        ParserResult<object> options = parsedArgs
-            .WithNotParsed<object>((errs) =>
-            {
-                bool continueProcessing = true;
-                foreach (CommandLine.Error e in errs)
-                {
-                    Console.WriteLine("ERROR " + e.Tag.ToString());
-                    continueProcessing = !e.StopsProcessing && continueProcessing;
-                }
-                if (!continueProcessing)
-                {
-                    return;
-                }
-            })
-            .WithParsed((obj) =>
-            {
-                commandOptions = obj as ICommandOptions;
-            });
 
         using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -48,7 +20,7 @@ class Program
 
         ILogger logger = loggerFactory.CreateLogger("Startup");
 
-        IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args)
+        IHost host = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration(configBuilder =>
             {
                 // these should be set in the LaunchSettings.json or at runtime in Environment Variables
@@ -56,8 +28,7 @@ class Program
                 string coreClusterCategory = Environment.GetEnvironmentVariable("CS_CATEGORY");
 
                 configBuilder
-                    .SetBasePath(AppContext.BaseDirectory);
-                configBuilder
+                    .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddJsonFile($"appsettings.{coreEnvironment}.json".ToLower(), optional: true, reloadOnChange: true)
                     .AddJsonFile($"appsettings.{coreEnvironment}-{coreClusterCategory}.json".ToLower(), optional: true, reloadOnChange: true);
@@ -76,13 +47,22 @@ class Program
                     .AddLoggers(logger, loggerFactory)
                     .AddAuthentication()
                     .AddNeptuneDiscovery(context.Configuration);
-            });
-        IHost host = hostBuilder.Build();
+            })
+            .Build();
 
-        if (commandOptions != null)
-        {
-            result = commandOptions.VerbRunner(host, logger);
-        }
-        return result;
+        IConfiguration config = host.Services.GetRequiredService<IConfiguration>();
+        logger.LogInformation("Running in config {ClusterCategory}", config.GetValue<string>("Gateway:ClusterCategory"));
+
+        RootCommand rootCommand = new("Power Platform Licensing Sample Gateway");
+        rootCommand.Subcommands.Add(CommandAllocationEnvironmentGetOptions.BuildCommandAllocationEnvironmentGet(host, logger));
+        rootCommand.Subcommands.Add(CommandAllocationEnvironmentPatchOptions.BuildCommandAllocationEnvironmentPatch(host, logger));
+        rootCommand.Subcommands.Add(CommandAllocationEnvironmentsPatchOptions.BuildCommandAllocationEnvironmentsPatch(host, logger));
+        rootCommand.Subcommands.Add(CommandBillingPoliciesGetOptions.BuildCommandBillingPoliciesGet(host, logger));
+        rootCommand.Subcommands.Add(CommandBillingPolicyEnvironmentGetOptions.BuildCommandBillingPolicyEnvironmentGet(host, logger));
+        rootCommand.Subcommands.Add(CommandCapacityGetOptions.BuildCommandCapacityGet(host, logger));
+        rootCommand.Subcommands.Add(CommandEnvironmentBillingGetOptions.BuildCommandEnvironmentBillingGet(host, logger));
+        rootCommand.Subcommands.Add(CommandSdkCapacityGetOptions.BuildCommandSdkCapacityGet(host, logger));
+
+        return rootCommand.Parse(args).Invoke();
     }
 }
