@@ -1,15 +1,14 @@
-﻿namespace sample.gateway;
+namespace sample.gateway;
 
-[Verb("CommandAllocationEnvironmentPatch")]
+using System.CommandLine;
+using Microsoft.Extensions.Hosting;
+
 public class CommandAllocationEnvironmentPatchOptions : CommandOptions
 {
-    [Option("environmentId", Required = true, SetName = "AllParameterSets", HelpText = "Environment Id for which token will be issued")]
     public string EnvironmentId { get; set; }
 
-    [Option(shortName: 'a', "allocated", Required = false, SetName = "AllParameterSets", HelpText = "Numeric value for allocation")]
     public int Allocated { get; set; } = 0;
 
-    [Option(shortName: 'c', "currencyType", Required = true, SetName = "AllParameterSets", HelpText = "Currency to modify.")]
     public ExternalCurrencyType CurrencyType { get; set; }
 
     public int RunGenerateAndReturnExitCode(
@@ -20,5 +19,45 @@ public class CommandAllocationEnvironmentPatchOptions : CommandOptions
         CommandAllocationEnvironmentPatch cmd = new CommandAllocationEnvironmentPatch(this, configuration, logger, serviceProvider);
         var result = cmd.Run();
         return result;
+    }
+
+    public static Command BuildCommandAllocationEnvironmentPatch(IHost host, ILogger logger)
+    {
+        Option<string> tenantId = TenantIdOption();
+        Option<bool> whatIf = WhatIfOption();
+        Option<string> environmentId = EnvironmentIdOption();
+        Option<ExternalCurrencyType> currencyType = new("--currencyType")
+        {
+            Description = "Currency to modify.",
+            Required = true
+        };
+        Option<int> allocated = new("--allocated")
+        {
+            Description = "Numeric value for allocation.",
+            DefaultValueFactory = _ => 0
+        };
+
+        Command command = new("CommandAllocationEnvironmentPatch");
+        command.Options.Add(tenantId);
+        command.Options.Add(whatIf);
+        command.Options.Add(environmentId);
+        command.Options.Add(currencyType);
+        command.Options.Add(allocated);
+
+        command.SetAction(parseResult =>
+        {
+            var opts = new CommandAllocationEnvironmentPatchOptions
+            {
+                TenantId = parseResult.GetValue(tenantId),
+                WhatIf = parseResult.GetValue(whatIf),
+                EnvironmentId = parseResult.GetValue(environmentId),
+                CurrencyType = parseResult.GetValue(currencyType),
+                Allocated = parseResult.GetValue(allocated),
+            };
+            IConfiguration config = host.Services.GetRequiredService<IConfiguration>();
+            return opts.RunGenerateAndReturnExitCode(config, logger, host.Services);
+        });
+
+        return command;
     }
 }

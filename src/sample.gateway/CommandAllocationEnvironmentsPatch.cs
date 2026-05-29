@@ -88,7 +88,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
         {
             TraceLogger.LogInformation("Environment: {EnvironmentName}, Display Name: {DisplayName}", environment.Name, environment.Properties.DisplayName);
 
-            Uri allocationsUrl = new Uri(gatewayTenantUri, $"/licensing/allocations?$filter=environmentId eq '{environment.Name}' and EntitlementId in (MCSMessages,MCSSessions)&api-version=1");
+            Uri allocationsUrl = new Uri(gatewayTenantUri, $"/licensing/allocationsV2?$filter=environmentId eq '{environment.Name}' and EntitlementId in (MCSMessages,MCSSessions)&api-version=1");
             string allocationsResponse = OnSendAsync(allocationsUrl.ToString(), Opts.TenantId, gatewayAccessToken, HttpMethod.Get, correlationId: correlationId, cancellationToken: CancellationToken.None);
 
             bool HasChanges = false;
@@ -156,7 +156,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
 
             Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/allocations?api-version=1");
 
-            if (Opts.WhatIf.HasValue) // typically null, if this --whatif is present in the pipeline skip it
+            if (Opts.WhatIf)
             {
                 /// Present the change could be made
                 TraceLogger.LogInformation("WhatIf: Would PUT to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);

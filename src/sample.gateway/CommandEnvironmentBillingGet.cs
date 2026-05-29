@@ -27,7 +27,7 @@ public class CommandEnvironmentBillingGet : BaseCommand<CommandEnvironmentBillin
         TraceLogger.LogInformation($"Gateway URL: {clusterurl}");
         TraceLogger.LogInformation($"Gateway Audience: {gatewayResource}");
 
-        if (Opts.WhatIf != true)
+        if (!Opts.WhatIf)
         {
             GetEnvironmentBillingPolicies(clusterurl, Opts.TenantId, gatewayResource, CancellationToken.None);
         }
