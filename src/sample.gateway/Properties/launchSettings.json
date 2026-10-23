@@ -90,11 +90,31 @@
     },
     "CommandAllocationEnvironmentGetGccM": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
+      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",
-        "CS_CATEGORY": "gov",
+        "CS_CATEGORY": "Gov",
+        "CS_TYPE": "CustomerManagement"
+      }
+    },
+    "CommandAllocationEnvironmentGetGccMClient": {
+      "commandName": "Project",
+      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --clientId 14d82eec-204b-4c2f-b7e8-296a70dab67e",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "CS_ENVIRONMENT": "gov",
+        "CS_CATEGORY": "Gov",
+        "CS_TYPE": "CustomerManagement"
+      }
+    },
+    "CommandAllocationEnvironmentPatchGccM": {
+      "commandName": "Project",
+      "commandLineArgs": "CommandAllocationEnvironmentPatch --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --currencyType AI --allocated 1000",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "CS_ENVIRONMENT": "gov",
+        "CS_CATEGORY": "Gov",
         "CS_TYPE": "CustomerManagement"
       }
     },

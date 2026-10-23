@@ -13,7 +13,7 @@ public class EnforcementRuleConverter : Newtonsoft.Json.JsonConverter
 
     public override bool CanConvert(Type objectType)
     {
-        return typeof(EnforcementRule).IsAssignableFrom(objectType);
+        return typeof(AllocationEnforcementRule).IsAssignableFrom(objectType);
     }
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -39,7 +39,7 @@ public class EnforcementRuleConverter : Newtonsoft.Json.JsonConverter
         JObject value = JObject.Load(reader);
 
         // Create target object based on JObject
-        EnforcementRule target = this.CreateObject(objectType, value, serializer);
+        AllocationEnforcementRule target = this.CreateObject(objectType, value, serializer);
 
         serializer.Populate(value.CreateReader(), target);
 
@@ -53,7 +53,7 @@ public class EnforcementRuleConverter : Newtonsoft.Json.JsonConverter
     /// <param name="jobject">The JSON representing the target object.</param>
     /// <param name="serializer">Serializer being used for deserialization.</param>
     /// <returns>The instance of the subclass to populate.</returns>
-    private EnforcementRule CreateObject(Type objectType, JObject jobject, JsonSerializer serializer)
+    private AllocationEnforcementRule CreateObject(Type objectType, JObject jobject, JsonSerializer serializer)
     {
         JToken token;
 
@@ -66,14 +66,14 @@ public class EnforcementRuleConverter : Newtonsoft.Json.JsonConverter
                     "ruleType"));
         }
 
-        EnforcementRuleTypes enforcementRuleType = token.ToObject<EnforcementRuleTypes>(serializer);
+        AllocationEnforcementRuleTypes enforcementRuleType = token.ToObject<AllocationEnforcementRuleTypes>(serializer);
 
         switch (enforcementRuleType)
         {
-            case EnforcementRuleTypes.Alert:
+            case AllocationEnforcementRuleTypes.Alert:
                 return new AlertEnforcementRule();
             default:
-                return new EnforcementRule();
+                return new AllocationEnforcementRule();
         }
     }
 }

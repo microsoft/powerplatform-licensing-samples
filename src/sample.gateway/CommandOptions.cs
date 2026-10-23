@@ -11,6 +11,8 @@ public class CommandOptions : ICommandOptions
 
     public string TenantId { get; set; } = default(string);
 
+    public string ClientId { get; set; } = default(string);
+
     internal static Option<string> EnvironmentIdOption() => new("--environmentId")
     {
         Description = "Environment Id for which the allocation will be retrieved.",
@@ -21,6 +23,11 @@ public class CommandOptions : ICommandOptions
     {
         Description = "Tenant Id for downstream user tenant.",
         Required = true
+    };
+
+    internal static Option<string> ClientIdOption() => new("--clientId")
+    {
+        Description = "Optional application id override for your tenant."
     };
 
     internal static Option<bool> WhatIfOption() => new("--whatif")

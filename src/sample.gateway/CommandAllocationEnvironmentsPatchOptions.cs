@@ -24,6 +24,7 @@ public class CommandAllocationEnvironmentsPatchOptions : CommandOptions
     public static Command BuildCommandAllocationEnvironmentsPatch(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
         Option<CommandAllocationEnvironmentsPatchOptionsAction> action = new("--action")
         {
@@ -42,6 +43,7 @@ public class CommandAllocationEnvironmentsPatchOptions : CommandOptions
 
         Command command = new("CommandAllocationEnvironmentsPatch");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(action);
         command.Options.Add(pagingBy);
@@ -52,6 +54,7 @@ public class CommandAllocationEnvironmentsPatchOptions : CommandOptions
             var opts = new CommandAllocationEnvironmentsPatchOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
                 Action = parseResult.GetValue(action),
                 PagingBy = parseResult.GetValue(pagingBy),

@@ -8,4 +8,9 @@ public interface ICommandOptions
     /// Required TenantId for authentication purposes.
     /// </summary>
     string TenantId { get; set; }
+
+    /// <summary>
+    /// Optional application id override for your tenant.
+    /// </summary>
+    string ClientId { get; set; }
 }

@@ -2,12 +2,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Threading;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEnvironmentPatchOptions>
 {
@@ -33,37 +32,45 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
             string tenantUrl = _neptuneDiscovery.GetGatewayEndpoint(Opts.TenantId);
             Uri gatewayTenantUri = new Uri($"https://{tenantUrl}");
 
-            (bool flowControl, string value) = GetEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId);
-            if (flowControl)
+            (HttpStatusCode? statusCode, string value) = GetEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId);
+            if (statusCode == HttpStatusCode.NotFound)
             {
-                AllocationsByEnvironmentResponseModelV1 results = Newtonsoft.Json.JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value);
-                if (results.CurrencyAllocations.Any(ca => ca.CurrencyType == Opts.CurrencyType && ca.Allocated == Opts.Allocated))
+                TraceLogger.LogInformation("No allocation document found for Environment: {EnvironmentId}. Creating an allocation for currency type: {CurrencyType}.", Opts.EnvironmentId, Opts.CurrencyType);
+            }
+            else if (statusCode.HasValue && (int)statusCode.Value >= 200 && (int)statusCode.Value < 300
+                && !string.IsNullOrWhiteSpace(value))
+            {
+                var results = JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value, ModelJson.CreateSettings());
+                if (results == null)
+                {
+                    TraceLogger.LogError("The allocation response did not contain a document for Environment: {EnvironmentId}.", Opts.EnvironmentId);
+                    return -1;
+                }
+                if (results.CurrencyAllocations?.Any(ca => ca.CurrencyType == Opts.CurrencyType && ca.Allocated == Opts.Allocated) == true)
                 {
                     TraceLogger.LogError($"No allocations need to be modified for currency type: {Opts.CurrencyType}");
                     return -1;
                 }
-                else
-                {
-                    (bool patchFlowControl, string patchValue) = PatchEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId, Opts.CurrencyType, Opts.Allocated, correlationId);
-                    if (!patchFlowControl)
-                    {
-                        return -1;
-                    }
-                }
-                return 0;
             }
+            else
+            {
+                TraceLogger.LogError("Failed to retrieve allocations for Environment: {EnvironmentId}. Status code: {StatusCode}.", Opts.EnvironmentId, statusCode);
+                return -1;
+            }
+
+            (bool patchFlowControl, string patchValue) = PatchEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId, Opts.CurrencyType, Opts.Allocated, correlationId);
+            return patchFlowControl ? 0 : -1;
         }
         catch (Exception ex)
         {
             TraceLogger.LogError(ex.Message);
             return -1;
         }
-        return 0;
     }
 
     // Add the SupportedOSPlatform attribute to the method where TokenStorage.SaveToken is called
     [SupportedOSPlatform("windows")]
-    private (bool flowControl, string value) GetEnvironmentAllocation(Uri gatewayTenantUri, TenantId tenantId, EnvironmentId environmentId)
+    private (HttpStatusCode? statusCode, string value) GetEnvironmentAllocation(Uri gatewayTenantUri, TenantId tenantId, EnvironmentId environmentId)
     {
         string gatewayResource = _neptuneDiscovery.GetTokenAudience();
         string tokenPrefix = _neptuneDiscovery.ClusterCategory.ToString();
@@ -74,20 +81,18 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
         if (string.IsNullOrWhiteSpace(gatewayAccessToken))
         {
             TraceLogger.LogError("Failed to acquire token for gateway.");
-            return (flowControl: false, value: string.Empty);
+            return (statusCode: null, value: string.Empty);
         }
 
-        bool responseOk = false;
         Uri allocationsUrl = new Uri(gatewayTenantUri, $"/licensing/environments/{environmentId}/allocations?api-version=2022-03-01-preview");
-        string gatewayResponse = OnSendAsync(allocationsUrl.ToString(), tenantId, gatewayAccessToken, httpMethod: HttpMethod.Get, correlationId: Guid.NewGuid(), cancellationToken: CancellationToken.None);
-        if (!string.IsNullOrWhiteSpace(gatewayResponse))
+        var response = OnSendWithStatusAsync(allocationsUrl.ToString(), tenantId, gatewayAccessToken, httpMethod: HttpMethod.Get, correlationId: Guid.NewGuid(), cancellationToken: CancellationToken.None);
+        if (response.statusCode.HasValue && (int)response.statusCode.Value >= 200 && (int)response.statusCode.Value < 300)
         {
             TraceLogger.LogInformation($"Succeeded {allocationsUrl}.");
-            TraceLogger.LogInformation($"Allocations for {environmentId}: {gatewayResponse}");
-            responseOk = true;
+            TraceLogger.LogInformation($"Allocations for {environmentId}: {response.value}");
         }
 
-        return (flowControl: responseOk, value: gatewayResponse);
+        return response;
     }
 
     // Add the SupportedOSPlatform attribute to the method where TokenStorage.SaveToken is called
@@ -119,21 +124,7 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
             }
         };
 
-        string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new StringEnumConverter(),
-                new ModelTypeConverter<EntitlementId>(),
-                new ModelTypeConverter<EnvironmentGroupId>(),
-                new ModelTypeConverter<EnvironmentId>(),
-                new ModelTypeConverter<TenantId>(),
-                new ModelTypeConverter<UserId>(),
-            },
-        });
+        string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, ModelJson.CreateSettings());
 
         bool responseOk = false;
         Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/environments/{environmentId}/allocations?api-version=2022-03-01-preview");
@@ -141,16 +132,21 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
         if (Opts.WhatIf)
         {
             /// Present the change could be made
-            TraceLogger.LogInformation("WhatIf: Would PUT to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);
+            TraceLogger.LogInformation("WhatIf: Would PATCH to {AllocationsPutUrl} with body: {AssertedChange}", allocationsPutUrl, assertedChange);
+            responseOk = true;
         }
         else
         {
-            string putResponse = OnSendAsync(allocationsPutUrl.ToString(), Opts.TenantId, gatewayAccessToken, httpMethod: HttpMethod.Patch, requestBody: assertedChange, correlationId: correlationId, cancellationToken: CancellationToken.None);
-            if (!string.IsNullOrWhiteSpace(putResponse))
+            var response = OnSendWithStatusAsync(allocationsPutUrl.ToString(), tenantId, gatewayAccessToken, httpMethod: HttpMethod.Patch, requestBody: assertedChange, correlationId: correlationId, cancellationToken: CancellationToken.None);
+            if (response.statusCode.HasValue && (int)response.statusCode.Value >= 200 && (int)response.statusCode.Value < 300)
             {
                 responseOk = true;
-                TraceLogger.LogInformation("Successfully PUT allocations for Environment: {environmentId}", environmentId);
-                TraceLogger.LogInformation("Response: {PutResponse}", putResponse);
+                TraceLogger.LogInformation("Successfully PATCHed allocations for Environment: {environmentId}", environmentId);
+                TraceLogger.LogInformation("Response: {PutResponse}", response.value);
+            }
+            else
+            {
+                TraceLogger.LogError("Failed to PATCH allocations for Environment: {EnvironmentId}. Status code: {StatusCode}.", environmentId, response.statusCode);
             }
         }
 

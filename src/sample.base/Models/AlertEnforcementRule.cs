@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-public class AlertEnforcementRule : EnforcementRule
+public class AlertEnforcementRule : AllocationEnforcementRule
 {
     [JsonProperty(PropertyName = "ruleData")]
     public AlertData RuleData { get; set; }

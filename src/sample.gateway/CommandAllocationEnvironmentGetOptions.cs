@@ -20,11 +20,14 @@ public class CommandAllocationEnvironmentGetOptions : CommandOptions
     public static Command BuildCommandAllocationEnvironmentGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
         Option<string> environmentId = EnvironmentIdOption();
 
         Command command = new("CommandAllocationEnvironmentGet", "This will pull allocation documents for the environment.");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(environmentId);
 
@@ -33,6 +36,7 @@ public class CommandAllocationEnvironmentGetOptions : CommandOptions
             var opts = new CommandAllocationEnvironmentGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
                 EnvironmentId = parseResult.GetValue(environmentId),
             };

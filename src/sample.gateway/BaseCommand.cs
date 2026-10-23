@@ -1,5 +1,6 @@
 ﻿namespace sample.gateway;
 
+using System.Net;
 using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Text;
@@ -79,7 +80,7 @@ public abstract class BaseCommand<T> where T : ICommandOptions
 
     public virtual void OnInit()
     {
-        _clientId = PowershellClientId.ToString();
+        _clientId = Opts.ClientId ??= PowershellClientId.ToString();
 
         _authority = new Uri(_gatewayConfig.AuthenticationEndpoint.GetScopeEnsureResourceTrailingSlash(Opts.TenantId));
 
@@ -193,6 +194,21 @@ public abstract class BaseCommand<T> where T : ICommandOptions
         Guid? correlationId = default,
         CancellationToken cancellationToken = default)
     {
+        var response = OnSendWithStatusAsync(url, tenantId, accessToken, httpMethod, requestBody, correlationId, cancellationToken);
+        return response.statusCode.HasValue && (int)response.statusCode.Value >= 200 && (int)response.statusCode.Value < 300
+            ? response.value
+            : string.Empty;
+    }
+
+    internal virtual (HttpStatusCode? statusCode, string value) OnSendWithStatusAsync(
+        string url,
+        string tenantId,
+        string accessToken,
+        HttpMethod httpMethod,
+        string requestBody = "",
+        Guid? correlationId = default,
+        CancellationToken cancellationToken = default)
+    {
         correlationId ??= Guid.NewGuid();
 
         const int maxRetries = 3;
@@ -230,10 +246,12 @@ public abstract class BaseCommand<T> where T : ICommandOptions
                         Task.Delay(TimeSpan.FromSeconds(throttleBackoffSeconds), cancellationToken).Wait(cancellationToken);
                         continue;
                     }
+
+                    return (response.StatusCode, errorResponse);
                 }
                 else
                 {
-                    return response.Content.ReadAsStringAsync(cancellationToken).Result;
+                    return (response.StatusCode, response.Content.ReadAsStringAsync(cancellationToken).Result);
                 }
             }
             catch (HttpRequestException httpEx)
@@ -248,7 +266,7 @@ public abstract class BaseCommand<T> where T : ICommandOptions
             break;
         }
 
-        return string.Empty;
+        return (statusCode: null, value: string.Empty);
     }
 
     private static bool IsBurstThrottled(string errorResponse)
@@ -283,7 +301,7 @@ public abstract class BaseCommand<T> where T : ICommandOptions
         CancellationToken cancellationToken = default)
     {
         string[] scopes = [resource.GetScopeEnsureResourceTrailingSlash()];
-        string resourceScoped = $"{tokenPrefix}-{tokenResource}".ToLowerInvariant();
+        string resourceScoped = $"{clientId}-{tokenPrefix}-{tokenResource}".ToLowerInvariant();
 
         TokenInfo token = TokenStorage.LoadToken(resourceScoped);
 
