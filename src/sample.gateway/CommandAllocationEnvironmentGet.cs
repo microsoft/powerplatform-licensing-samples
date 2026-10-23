@@ -29,7 +29,7 @@ public class CommandAllocationEnvironmentGet : BaseCommand<CommandAllocationEnvi
             (bool flowControl, string value) = GetEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId);
             if (flowControl)
             {
-                AllocationsByEnvironmentResponseModelV1 results = Newtonsoft.Json.JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value, ModelJson.CreateSettings());
+                var results = Newtonsoft.Json.JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value, ModelJson.CreateSettings());
 
                 return 0;
             }

@@ -19,6 +19,7 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\sample.base\sample.base.csproj" />
+	  <ProjectReference Include="..\sample.gateway\sample.gateway.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

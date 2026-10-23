@@ -108,9 +108,9 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "CommandAllocationEnvironmentPatchGccMEnableDraw": {
+    "CommandAllocationEnvironmentPatchGccM": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentPatch --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --currencyType MCSMessages --allocated 1000",
+      "commandLineArgs": "CommandAllocationEnvironmentPatch --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --currencyType AI --allocated 1000",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",
