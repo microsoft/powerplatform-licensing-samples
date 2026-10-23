@@ -59,7 +59,7 @@ This project follows the [Microsoft Open Source Code of Conduct](https://opensou
 
 ## License
 
-Licensed under the [MIT License](./LICENSE.md).
+Licensed under the [MIT License](./LICENSE).
 
 ---
 
