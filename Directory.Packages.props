@@ -6,24 +6,24 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageVersion Include="Azure.Identity" Version="1.21.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.EventSource" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
-		<PackageVersion Include="Microsoft.Identity.Client" Version="4.83.3" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.EventSource" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
+		<PackageVersion Include="Microsoft.Identity.Client" Version="4.91.1" />
 		<PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
-		<PackageVersion Include="Microsoft.PowerPlatform.Management" Version="2.0.3399.248" />
+		<PackageVersion Include="Microsoft.PowerPlatform.Management" Version="2.0.3578.333" />
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
-		<PackageVersion Include="Moq" Version="4.20.72" />
-		<PackageVersion Include="MSTest" Version="4.2.2" />
-		<PackageVersion Include="MSTest.TestAdapter" Version="4.2.2" />
-		<PackageVersion Include="System.CommandLine" Version="2.0.7" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+		<PackageVersion Include="Moq" Version="4.21.0" />
+		<PackageVersion Include="MSTest" Version="4.5.1" />
+		<PackageVersion Include="MSTest.TestAdapter" Version="4.5.1" />
+		<PackageVersion Include="System.CommandLine" Version="2.0.13" />
 		<PackageVersion Include="xunit" Version="2.9.3" />
-		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+		<PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
 	</ItemGroup>
 </Project>
