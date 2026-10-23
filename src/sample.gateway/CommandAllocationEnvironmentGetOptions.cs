@@ -27,7 +27,6 @@ public class CommandAllocationEnvironmentGetOptions : CommandOptions
         Command command = new("CommandAllocationEnvironmentGet", "This will pull allocation documents for the environment.");
         command.Options.Add(tenantId);
         command.Options.Add(clientId);
-        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(environmentId);
 

@@ -36,6 +36,29 @@ This prints all available commands with their options. To get help for a specifi
 dotnet run --project src/sample.gateway -- <CommandName> --help
 ```
 
+### 5. Run interactively
+
+Select a cloud launch profile in Visual Studio and start debugging. With no command-line arguments,
+the console lists the commands and prompts for their options. Press Enter to keep an optional
+value's default, or enter `q` to cancel. Enum options list their available values.
+
+| Launch profile | Configuration |
+|---|---|
+| `PlatformProd` | Commercial production |
+| `PlatformPreprod` | Preproduction |
+| `PlatformGccM` | GCC (`Gov`) |
+| `PlatformGccH` | GCC High (`High`) |
+| `PlatformDoD` | DoD |
+| `PlatformChina` | China (`Mooncake`) |
+
+For example, to launch the GCC prompts from PowerShell:
+
+```powershell
+dotnet run --project src\sample.gateway --launch-profile PlatformGccM
+```
+
+Explicit command-line arguments continue to run directly without prompting.
+
 ## Command Documentation
 
 | Command | Description |

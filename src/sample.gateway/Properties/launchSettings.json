@@ -9,6 +9,15 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
+    "PlatformTest": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "CS_ENVIRONMENT": "test",
+        "CS_CATEGORY": "Test",
+        "CS_TYPE": "CustomerManagement"
+      }
+    },
     "PlatformPreprod": {
       "commandName": "Project",
       "environmentVariables": {
@@ -18,79 +27,8 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "CommandEnvironmentBillingGet": {
+    "PlatformGccM": {
       "commandName": "Project",
-      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandEnvironmentBillingGetProd": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandEnvironmentBillingGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "prod",
-        "CS_CATEGORY": "Prod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentsPatchEnableDrawWhatIf": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 -a EnableDrawFromTenantPool --whatif true",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentsPatchEnableDraw": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 -a EnableDrawFromTenantPool",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentsPatchDisableDrawWhatIf": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --whatif true",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "prod",
-        "CS_CATEGORY": "Prod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentsPatchDisableDraw": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentsPatch --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentGet": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0 --environmentId Default-03ab3068-c403-406d-8351-bdbb6374c8b0",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
-        "CS_TYPE": "CustomerManagement"
-      }
-    },
-    "CommandAllocationEnvironmentGetGccM": {
-      "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",
@@ -98,33 +36,30 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "CommandAllocationEnvironmentGetGccMClient": {
+    "PlatformGccH": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentGet --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --clientId 14d82eec-204b-4c2f-b7e8-296a70dab67e",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",
-        "CS_CATEGORY": "Gov",
+        "CS_CATEGORY": "High",
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "CommandAllocationEnvironmentPatchGccM": {
+    "PlatformDoD": {
       "commandName": "Project",
-      "commandLineArgs": "CommandAllocationEnvironmentPatch --tenantId fc0055be-15b7-4ec8-8139-bd5cfeb08180 --environmentId d7f1d1b0-ff85-e3cb-9623-e2386ae5f417 --currencyType AI --allocated 1000",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "CS_ENVIRONMENT": "gov",
-        "CS_CATEGORY": "Gov",
+        "CS_CATEGORY": "DoD",
         "CS_TYPE": "CustomerManagement"
       }
     },
-    "CommandCapacityGet": {
+    "PlatformChina": {
       "commandName": "Project",
-      "commandLineArgs": "CommandCapacityGet --tenantId 03ab3068-c403-406d-8351-bdbb6374c8b0",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-        "CS_ENVIRONMENT": "test",
-        "CS_CATEGORY": "Preprod",
+        "CS_ENVIRONMENT": "mooncake",
+        "CS_CATEGORY": "Mooncake",
         "CS_TYPE": "CustomerManagement"
       }
     }

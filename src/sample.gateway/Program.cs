@@ -63,6 +63,6 @@ class Program
         rootCommand.Subcommands.Add(CommandEnvironmentBillingGetOptions.BuildCommandEnvironmentBillingGet(host, logger));
         rootCommand.Subcommands.Add(CommandSdkCapacityGetOptions.BuildCommandSdkCapacityGet(host, logger));
 
-        return rootCommand.Parse(args).Invoke();
+        return InteractiveCommandPrompt.Invoke(rootCommand, args, Console.In, Console.Out);
     }
 }
