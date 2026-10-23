@@ -6,8 +6,6 @@ using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Threading;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEnvironmentPatchOptions>
 {
@@ -36,7 +34,7 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
             (bool flowControl, string value) = GetEnvironmentAllocation(gatewayTenantUri, Opts.TenantId, Opts.EnvironmentId);
             if (flowControl)
             {
-                AllocationsByEnvironmentResponseModelV1 results = Newtonsoft.Json.JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value);
+                AllocationsByEnvironmentResponseModelV1 results = JsonConvert.DeserializeObject<AllocationsByEnvironmentResponseModelV1>(value, ModelJson.CreateSettings());
                 if (results.CurrencyAllocations.Any(ca => ca.CurrencyType == Opts.CurrencyType && ca.Allocated == Opts.Allocated))
                 {
                     TraceLogger.LogError($"No allocations need to be modified for currency type: {Opts.CurrencyType}");
@@ -119,21 +117,7 @@ public class CommandAllocationEnvironmentPatch : BaseCommand<CommandAllocationEn
             }
         };
 
-        string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new StringEnumConverter(),
-                new ModelTypeConverter<EntitlementId>(),
-                new ModelTypeConverter<EnvironmentGroupId>(),
-                new ModelTypeConverter<EnvironmentId>(),
-                new ModelTypeConverter<TenantId>(),
-                new ModelTypeConverter<UserId>(),
-            },
-        });
+        string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, ModelJson.CreateSettings());
 
         bool responseOk = false;
         Uri allocationsPutUrl = new Uri(gatewayTenantUri, $"/licensing/environments/{environmentId}/allocations?api-version=2022-03-01-preview");

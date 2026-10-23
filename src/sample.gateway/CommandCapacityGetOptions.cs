@@ -18,10 +18,12 @@ public class CommandCapacityGetOptions : CommandOptions
     public static Command BuildCommandCapacityGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
 
         Command command = new("CommandCapacityGet", "Get currency reports for the tenant.");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
 
         command.SetAction(parseResult =>
@@ -29,6 +31,7 @@ public class CommandCapacityGetOptions : CommandOptions
             var opts = new CommandCapacityGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
             };
             IConfiguration config = host.Services.GetRequiredService<IConfiguration>();

@@ -30,6 +30,7 @@ public class CommandEnvironmentBillingGetOptions : CommandOptions
     public static Command BuildCommandEnvironmentBillingGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
         Option<string> environmentId = new("--environmentId")
         {
@@ -39,6 +40,7 @@ public class CommandEnvironmentBillingGetOptions : CommandOptions
 
         Command command = new("CommandEnvironmentBillingGet");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(environmentId);
 
@@ -47,6 +49,7 @@ public class CommandEnvironmentBillingGetOptions : CommandOptions
             var opts = new CommandEnvironmentBillingGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
                 EnvironmentId = parseResult.GetValue(environmentId),
             };

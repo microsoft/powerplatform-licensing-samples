@@ -79,7 +79,7 @@ public abstract class BaseCommand<T> where T : ICommandOptions
 
     public virtual void OnInit()
     {
-        _clientId = PowershellClientId.ToString();
+        _clientId = Opts.ClientId ??= PowershellClientId.ToString();
 
         _authority = new Uri(_gatewayConfig.AuthenticationEndpoint.GetScopeEnsureResourceTrailingSlash(Opts.TenantId));
 

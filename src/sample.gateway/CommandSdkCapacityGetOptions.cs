@@ -18,10 +18,12 @@ public class CommandSdkCapacityGetOptions : CommandOptions
     public static Command BuildCommandSdkCapacityGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
 
         Command command = new("CommandSdkCapacityGet");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
 
         command.SetAction(parseResult =>
@@ -29,6 +31,7 @@ public class CommandSdkCapacityGetOptions : CommandOptions
             var opts = new CommandSdkCapacityGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
             };
             IConfiguration config = host.Services.GetRequiredService<IConfiguration>();

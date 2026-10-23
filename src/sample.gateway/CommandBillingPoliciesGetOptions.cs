@@ -24,10 +24,12 @@ public class CommandBillingPoliciesGetOptions : CommandOptions
     public static Command BuildCommandBillingPoliciesGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
 
         Command command = new("CommandBillingPoliciesGet", "Represents the options for the Billing Policy Get List check command.");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
 
         command.SetAction(parseResult =>
@@ -35,6 +37,7 @@ public class CommandBillingPoliciesGetOptions : CommandOptions
             var opts = new CommandBillingPoliciesGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
             };
             IConfiguration config = host.Services.GetRequiredService<IConfiguration>();

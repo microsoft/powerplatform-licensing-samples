@@ -26,6 +26,7 @@ public class CommandBillingPolicyEnvironmentGetOptions : CommandOptions
     public static Command BuildCommandBillingPolicyEnvironmentGet(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
         Option<string> billingPolicyId = new("--billingPolicyId")
         {
@@ -35,6 +36,7 @@ public class CommandBillingPolicyEnvironmentGetOptions : CommandOptions
 
         Command command = new("CommandBillingPolicyEnvironmentGet", "This will pull billing policies with environments.");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(billingPolicyId);
 
@@ -43,6 +45,7 @@ public class CommandBillingPolicyEnvironmentGetOptions : CommandOptions
             var opts = new CommandBillingPolicyEnvironmentGetOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
                 BillingPolicyId = parseResult.GetValue(billingPolicyId),
             };

@@ -6,8 +6,6 @@ using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Threading;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationEnvironmentsPatchOptions>
 {
@@ -114,7 +112,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
                 TraceLogger.LogInformation("Allocations found for Environment: {EnvironmentName}", environment.Name);
 
                 // Can Put
-                AllocationResponseModel allocationResponse = JsonConvert.DeserializeObject<AllocationResponseModel>(allocationsResponse);
+                AllocationResponseModel allocationResponse = JsonConvert.DeserializeObject<AllocationResponseModel>(allocationsResponse, ModelJson.CreateSettings());
 
                 allocationPutRequestModel = new AllocationPutRequestModel
                 {
@@ -128,25 +126,11 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
             }
 
             // Always invoke both — short-circuit || would skip the call if HasChanges is already true
-            bool mcsMessagesChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSMessages"), EnforcementRuleTypes.TenantPool);
-            bool mcsSessionsChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSSessions"), EnforcementRuleTypes.TenantPool);
+            bool mcsMessagesChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSMessages"), AllocationEnforcementRuleTypes.TenantPool);
+            bool mcsSessionsChanged = EnsureEntitlementEnforcement(allocationPutRequestModel, new EntitlementId("MCSSessions"), AllocationEnforcementRuleTypes.TenantPool);
             HasChanges = HasChanges || mcsMessagesChanged || mcsSessionsChanged;
 
-            string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = new List<JsonConverter>
-                {
-                    new StringEnumConverter(),
-                    new ModelTypeConverter<EntitlementId>(),
-                    new ModelTypeConverter<EnvironmentGroupId>(),
-                    new ModelTypeConverter<EnvironmentId>(),
-                    new ModelTypeConverter<TenantId>(),
-                    new ModelTypeConverter<UserId>(),
-                },
-            });
+            string assertedChange = JsonConvert.SerializeObject(allocationPutRequestModel, ModelJson.CreateSettings());
 
             if (!HasChanges)
             {
@@ -183,7 +167,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
         return (flowControl: true, value: default);
     }
 
-    private bool EnsureEntitlementEnforcement(AllocationPutRequestModel allocationPutRequestModel, EntitlementId entitlementId, EnforcementRuleTypes enforcementRuleType)
+    private bool EnsureEntitlementEnforcement(AllocationPutRequestModel allocationPutRequestModel, EntitlementId entitlementId, AllocationEnforcementRuleTypes enforcementRuleType)
     {
         EntitlementAllocationModel existingEntitlement = allocationPutRequestModel.AllocatedEntitlements.FirstOrDefault(fn => fn.EntitlementId == entitlementId);
         if (existingEntitlement == null)
@@ -194,15 +178,16 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
                 Allocation = new AllocationModel
                 {
                     Quantity = 0, // Default quantity, can be adjusted later
-                    AutoAllocated = 0 // Default auto allocation, can be adjusted later
+                    AutoAllocated = 0, // Default auto allocation, can be adjusted later
+                    Unit = EntitlementUnit.NotSpecified,
                 },
                 EntitlementId = entitlementId,
-                EnforcementRules = new List<EnforcementRule>
+                EnforcementRules = new List<AllocationEnforcementRule>
                 {
-                    new EnforcementRule
+                    new AllocationEnforcementRule
                     {
-                        IsEnabled = Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.EnableDrawFromTenantPool,
-                        Type = enforcementRuleType
+                        Enabled = Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.EnableDrawFromTenantPool,
+                        RuleType = enforcementRuleType
                     }
                 }
             };
@@ -212,7 +197,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
         else
         {
             if (Opts.SkipExisting
-                && existingEntitlement.EnforcementRules != null && existingEntitlement.EnforcementRules.Any(er => er.Type == enforcementRuleType))
+                && existingEntitlement.EnforcementRules != null && existingEntitlement.EnforcementRules.Any(er => er.RuleType == enforcementRuleType))
             {
                 TraceLogger.LogInformation("Skipping Environment: {EnvironmentId} for Entitlement: {EntitlementId} as it already has Enforcement Rule: {EnforcementRuleType}", allocationPutRequestModel.Scope.EnvironmentId, entitlementId, enforcementRuleType);
                 return false; // Skip this entitlement as it already has the enforcement rule
@@ -222,29 +207,29 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
             if (existingEntitlement.EnforcementRules == null || existingEntitlement.EnforcementRules.Count == 0)
             {
                 // backfill empty object with collection
-                existingEntitlement.EnforcementRules = new List<EnforcementRule>();
+                existingEntitlement.EnforcementRules = new List<AllocationEnforcementRule>();
             }
 
-            EnforcementRule entitlementRule = existingEntitlement.EnforcementRules.FirstOrDefault(er => er.Type == enforcementRuleType);
+            AllocationEnforcementRule entitlementRule = existingEntitlement.EnforcementRules.FirstOrDefault(er => er.RuleType == enforcementRuleType);
             if (entitlementRule == null)
             {
                 // If the entitlement exists but doesn't have the enforcement rule, add it
-                existingEntitlement.EnforcementRules.Add(new EnforcementRule
+                existingEntitlement.EnforcementRules.Add(new AllocationEnforcementRule
                 {
-                    IsEnabled = Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.EnableDrawFromTenantPool,
-                    Type = enforcementRuleType
+                    Enabled = Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.EnableDrawFromTenantPool,
+                    RuleType = enforcementRuleType
                 });
                 return true;
             }
             else
             {
                 // If the entitlement exists and has the enforcement rule
-                if (entitlementRule.IsEnabled)
+                if (entitlementRule.Enabled == true)
                 {
                     // ensure it's set to false
                     if (Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.DisableDrawFromTenantPool)
                     {
-                        entitlementRule.IsEnabled = false;
+                        entitlementRule.Enabled = false;
                         return true; // Change was made
                     }
                 }
@@ -253,7 +238,7 @@ public class CommandAllocationEnvironmentsPatch : BaseCommand<CommandAllocationE
                     // ensure it's set to true
                     if (Opts.Action == CommandAllocationEnvironmentsPatchOptionsAction.EnableDrawFromTenantPool)
                     {
-                        entitlementRule.IsEnabled = true;
+                        entitlementRule.Enabled = true;
                         return true; // Change was made
                     }
                 }

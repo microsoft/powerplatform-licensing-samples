@@ -24,6 +24,7 @@ public class CommandAllocationEnvironmentPatchOptions : CommandOptions
     public static Command BuildCommandAllocationEnvironmentPatch(IHost host, ILogger logger)
     {
         Option<string> tenantId = TenantIdOption();
+        Option<string> clientId = ClientIdOption();
         Option<bool> whatIf = WhatIfOption();
         Option<string> environmentId = EnvironmentIdOption();
         Option<ExternalCurrencyType> currencyType = new("--currencyType")
@@ -39,6 +40,7 @@ public class CommandAllocationEnvironmentPatchOptions : CommandOptions
 
         Command command = new("CommandAllocationEnvironmentPatch");
         command.Options.Add(tenantId);
+        command.Options.Add(clientId);
         command.Options.Add(whatIf);
         command.Options.Add(environmentId);
         command.Options.Add(currencyType);
@@ -49,6 +51,7 @@ public class CommandAllocationEnvironmentPatchOptions : CommandOptions
             var opts = new CommandAllocationEnvironmentPatchOptions
             {
                 TenantId = parseResult.GetValue(tenantId),
+                ClientId = parseResult.GetValue(clientId),
                 WhatIf = parseResult.GetValue(whatIf),
                 EnvironmentId = parseResult.GetValue(environmentId),
                 CurrencyType = parseResult.GetValue(currencyType),
