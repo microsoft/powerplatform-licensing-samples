@@ -8,7 +8,7 @@ _Replace_ by possible risks this pull request can bring you might have thought o
 
 ## ✅ **PR Checklist**
 
-- [ ] **I have read the [contribution guidelines](https://github.com/microsoft/azure-devops-mcp/blob/main/CONTRIBUTING.md)**
+- [ ] **I have read the [contribution guidelines](../CONTRIBUTING.md)**
 - [ ] **I have read the [code of conduct guidelines](https://github.com/microsoft/azure-devops-mcp/blob/main/CODE_OF_CONDUCT.md)**
 - [ ] Title of the pull request is clear and informative.
 - [ ] 👌 Code hygiene
