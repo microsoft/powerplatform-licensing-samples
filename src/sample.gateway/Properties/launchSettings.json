@@ -9,6 +9,15 @@
         "CS_TYPE": "CustomerManagement"
       }
     },
+    "PlatformTest": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "CS_ENVIRONMENT": "test",
+        "CS_CATEGORY": "Test",
+        "CS_TYPE": "CustomerManagement"
+      }
+    },
     "PlatformPreprod": {
       "commandName": "Project",
       "environmentVariables": {
